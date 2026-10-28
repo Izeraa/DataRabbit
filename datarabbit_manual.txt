@@ -1,0 +1,213 @@
+DataRabbit Manual
+=================
+
+Resumo:
+DataRabbit é uma biblioteca leve para criar e manipular tabelas em arquivos TXT no formato:
+
+[id][name][score]
+[1][Alice][99]
+[2][Bob][87]
+
+Cada linha é uma linha da tabela.
+Cada valor dentro de [] é uma coluna.
+
+Estrutura principal:
+- dr_table: tabela em memória
+- dr_database: banco ligado a um arquivo TXT
+- dr_cell: acesso a uma célula [linha][coluna]
+
+1) Criar arquivo TXT
+---------------------
+Função:
+  dr_database_create_file("users");
+
+Resultado:
+  datarabbit+users.txt
+
+Exemplo:
+  dr_database_create_file("users");
+
+2) Abrir banco
+---------------
+Função:
+  dr_database_open(&db, "users");
+
+Exemplo:
+  dr_database db;
+  dr_database_open(&db, "users");
+
+Se o arquivo existir, ele será carregado automaticamente.
+Se não existir, a tabela ficará vazia e pode ser preenchida.
+
+3) Salvar arquivo
+------------------
+Função:
+  dr_database_save(&db);
+
+Exemplo:
+  dr_database_save(&db);
+
+Isso salva a tabela atual no arquivo:
+  datarabbit+users.txt
+
+4) Carregar arquivo
+--------------------
+Função:
+  dr_database_load(&db);
+
+Exemplo:
+  dr_database_load(&db);
+
+Isso lê o conteúdo do arquivo para a memória.
+
+5) Inserir linha
+-----------------
+Função:
+  dr_database_insert_row(&db, values, count);
+
+Exemplo:
+  const char *user1[] = { "1", "Alice", "99" };
+  dr_database_insert_row(&db, user1, 3);
+
+Resultado:
+  [1][Alice][99]
+
+6) Definir linha
+-----------------
+Função:
+  dr_database_set_row(&db, row_index, values, count);
+
+Exemplo:
+  const char *header[] = { "id", "name", "score" };
+  dr_database_set_row(&db, 0, header, 3);
+
+7) Selecionar valor
+--------------------
+Função:
+  dr_database_select_value(&db, row_index, col_index, &value);
+
+Exemplo:
+  const char *value = NULL;
+  dr_database_select_value(&db, 1, 1, &value);
+  printf("%s\n", value);
+
+Resultado:
+  Alice
+
+8) Selecionar linha inteira
+---------------------------
+Função:
+  dr_database_select_row(&db, row_index, &selected, &count);
+
+Exemplo:
+  const char **selected = NULL;
+  size_t count = 0;
+
+  dr_database_select_row(&db, 1, &selected, &count);
+  printf("[%s][%s][%s]\n", selected[0], selected[1], selected[2]);
+
+9) Busca por coluna e valor (WHERE)
+-----------------------------------
+Função:
+  dr_database_where(&db, col_index, "Bob", rows, max_rows, &count);
+
+Exemplo:
+  size_t rows[10];
+  size_t count = 0;
+
+  dr_database_where(&db, 1, "Bob", rows, 10, &count);
+  printf("encontrado em %zu linhas\n", count);
+
+Isso procura um valor em uma coluna específica.
+
+10) Atualizar valor
+-------------------
+Função:
+  dr_database_update(&db, row_index, col_index, "novo valor");
+
+Exemplo:
+  dr_database_update(&db, 1, 1, "Alice Silva");
+
+11) Deletar valor de célula
+---------------------------
+Função:
+  dr_database_delete(&db, row_index, col_index);
+
+Exemplo:
+  dr_database_delete(&db, 1, 1);
+
+Isso apaga o valor daquela célula.
+
+12) Remover linha inteira
+-------------------------
+Função:
+  dr_database_delete_row(&db, row_index);
+
+Exemplo:
+  dr_database_delete_row(&db, 2);
+
+13) Célula em memória
+---------------------
+Função:
+  dr_cell cell = { .db = &db, .row = 1, .col = 1 };
+
+Exemplo:
+  dr_cell cell = { .db = &db, .row = 1, .col = 1 };
+  const char *value = NULL;
+
+  dr_cell_value(&cell, &value);
+  printf("%s\n", value);
+
+14) Exemplo completo
+--------------------
+```c
+#include "datarabbit.h"
+
+int main(void) {
+    dr_database db;
+    const char *header[] = { "id", "name", "score" };
+    const char *user1[] = { "1", "Alice", "99" };
+    const char *user2[] = { "2", "Bob", "87" };
+    const char *value = NULL;
+    size_t rows[10];
+    size_t count = 0;
+
+    dr_database_create_file("users");
+    dr_database_open(&db, "users");
+
+    dr_database_set_row(&db, 0, header, 3);
+    dr_database_insert_row(&db, user1, 3);
+    dr_database_insert_row(&db, user2, 3);
+
+    dr_database_select_value(&db, 1, 1, &value);
+    printf("Valor: %s\n", value);
+
+    dr_database_where(&db, 1, "Bob", rows, 10, &count);
+    printf("Linhas encontradas: %zu\n", count);
+
+    dr_database_update(&db, 2, 1, "Bobby");
+    dr_database_delete(&db, 1, 1);
+    dr_database_save(&db);
+    dr_database_free(&db);
+    return 0;
+}
+```
+
+15) Arquivo gerado
+-------------------
+Depois de salvar, o arquivo fica assim:
+
+[id][name][score]
+[1][Alice][99]
+[2][Bob][87]
+
+Com prefixo:
+  datarabbit+users.txt
+
+Observações:
+- É uma base leve em TXT.
+- Não é SQL completo.
+- É simples, útil para pequenos projetos, protótipos e bancos locais leves.
+- Funciona bem para salvar listas, tabelas e dados simples.
+
+Fim do manual.
