@@ -1,8 +1,26 @@
 DataRabbit
 ==========
+DataRabbit is a small C library for saving data to TXT files in table format.
 
+Storage format:
+[id][name][score]
+[1][Alice][99]
+[2][Bob][87]
+
+Each row is a row of the table and each value within [] is a column.
+
+==========
 O DataRabbit é uma biblioteca em C para armazenar dados em formato de tabela, com suporte a gravação e leitura em arquivo TXT.
+DataRabbit é uma pequena biblioteca em C para salvar dados em arquivos TXT em formato de tabela.
 
+Formato de armazenamento:
+  [id][name][score]
+  [1][Alice][99]
+  [2][Bob][87]
+
+Cada Linha é Uma linha da tabela e Cada valor dentro de [] é uma coluna.
+
+==========
 Ele usa o prefixo datarabbit_ em todas as funções e estruturas para evitar conflitos com outras bibliotecas.
 
 Estruturas principais
